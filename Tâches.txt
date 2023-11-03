@@ -1,0 +1,13 @@
+Communes :
+- Comprendre lua (A FAIRE)
+- Lancer un jupiter notebook en lua (A FAIRE)
+- Comprendre et commenter le code (A FAIRE)
+- Tester le code chacunes sur quelques images
+- Comprendre le fonctionnement de la loss
+- Discussion des limites
+
+Individuelles :
+- Redaction des parties orales + diapos
+
+
+- Tests des limites
