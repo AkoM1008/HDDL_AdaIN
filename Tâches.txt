@@ -1,6 +1,5 @@
 Communes :
-- Comprendre lua (A FAIRE)
-- Lancer un jupiter notebook en lua (A FAIRE)
+- Lancer un jupiter notebook en python (A FAIRE)
 - Comprendre et commenter le code (A FAIRE)
 - Tester le code chacunes sur quelques images
 - Comprendre le fonctionnement de la loss
