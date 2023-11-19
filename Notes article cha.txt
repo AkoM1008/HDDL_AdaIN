@@ -1,0 +1,46 @@
+Notes article hddl
+
+INTRO : 
+DNN encode le contenu et le style d'une image
+
+les algos trop limités, pas assez rapides ou trop restreints au niveau du style -> création de AdaIN qui ajuste la moyenne et la variance de l'input pour que ça match avec le style qu'on veut
+
+optimisation trop lente et les méthodes les plus rapides sont limitées à 1 style
+
+BACKGROUND :
+	1. batch normalisation BN
+normalise les variables stats (moyenne et variance) pour chaque canal de feature individuelle
+
+	2. instance normalisation IN
+après chaque convolution on a un BN. On les remplace avec des IN. la moyenne et la variance sont calculé indépendamment pour chaque canal et chaque échantillon
+
+	3. conditional instance normalisation
+entraine le réseau avec différents paramètres pour le même style
+
+-> IN normalise le style de chaque échantillon individuel, ce qui facilite l'entrainement et permet des styles différents
+-> BN normalise un lot d'échantillons vers un style unique. IN montre une meilleure convergence pour le transfert de style, même lorsque le contraste des images est égalisé.
+
+	4. adaptive instance normalisation
+calcule les paramètres affines du style d'entrée. Réalise le transfert de style dans l'espace des caractéristiques en transférant les statistiques des caractéristiques par canal
+
+ARCHITECTURE :
+Prend une image avec contenu et styme en entrée, puis génère une image de sortie combinant le contenu et le style. Encodeur-décodeur avec une couche AdaIN pour aligner les statistiques de moyenne et de variance des caractéristiques de contenu sur celles du style. Le décodeur transforme ces caractéristiques en une image sans utiliser de couches de normalisation pour faire des styles différents.
+
+APPRENTISSAGE :
+VGG-16 pré entraîné
+La partie encodeur de VGG-16 est utilisée pour extraire les caractéristiques et le style / AdaIN est appliquée pour faire correspondre sur la feature map
+
+-perte de contenu : mesure la différence entre les feature maps de l'image de base et de l'image stylisée
+-perte de style : mesure la différence entre les statistiques des feature maps de l'image de base et de l'image stylisée
+-perte de variation totale : réduit le "bruit"
+-perte totale est une somme pondérée des pertes
+
+Traite une paire d'images et les paramètres sont mis à jour en fonction des gradients
+
+RESULTATS :
+Transfert de style en temps réel
+Flexible
+Testé sur une gamme d'images diversifié
+Convaincant (?)
+
+
