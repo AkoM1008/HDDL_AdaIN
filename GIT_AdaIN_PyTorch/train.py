@@ -22,15 +22,20 @@ def main():
 	opt = parser.parse_args()
 	check_points_dir = './results/check_points/'
 	weights_dir = './results/weights/'
+    
+    # Création du train set avec content et style
 	train_set = TrainSet(opt.content_dir, opt.style_dir)
 	batch_size = 8
 	trainloader = DataLoader(dataset=train_set, num_workers =4, batch_size=batch_size, shuffle=True)
 	vgg_model = torch.load('vgg_normalized.pth')
 	net = StyleTransferNet(vgg_model)
+    
+    # GPU
 	if torch.cuda.is_available() and opt.cuda:
 		net.cuda()
 
-	decoder_optimizer = optim.Adam(net.decoder.parameters(), lr=1e-6)
+    # Optimiseurs Adam : on veut optimiser les params du décodeur 
+	decoder_optimizer = optim.Adam(net.decoder.parameters(), lr=1e-6) #lr : taux d'apprentissage
 	running_loss = 0.0
 	running_losses = []
 	it = 0
@@ -42,7 +47,7 @@ def main():
 		decoder_optimizer.load_state_dict(check_point['decoder_optimizer'])
 		it, running_losses = check_point['it'], check_point['running_losses']
 
-
+    # Boucle d'entrainement
 	for epoch in range(1+opt.resume, opt.epochs+1):
 		print("epoch: %i/%i" % (int(epoch), int(opt.epochs)))
 		training_bar = tqdm(trainloader)
@@ -55,16 +60,19 @@ def main():
 			if torch.cuda.is_available() and opt.cuda:
 				content_sample = content_sample.cuda()
 				style_sample = style_sample.cuda()
+                
+            # Calcul des pertes
 			loss_content, loss_style = net([content_sample, style_sample])
-
-
-
 			loss_tot = loss_content + 10 * loss_style
+            
+            # Rétropropagation et màj des poids
 			loss_tot.backward()
-			decoder_optimizer.step()
+			decoder_optimizer.step() # Les poids sont optimisés en foncion des gradients de la rétropropag
 			running_loss += loss_tot.item() * style_sample.size(0)
 			decoder_optimizer.zero_grad()
 			sample_num += style_sample.size(0)
+            
+            # Affiche les pertes toutes les 500 itérations
 			if ((it) % 500 ==0) and it!= 0:
 				
 				running_loss /= sample_num
@@ -81,6 +89,7 @@ def main():
 				sample_num = 0
 			it += 1
 
+        # Save les infos
 		check_point = {'decoder': net.decoder.state_dict(), 'decoder_optimizer': decoder_optimizer.state_dict(),
 								'running_losses': running_losses, 'it': it}
 		torch.save(check_point, check_points_dir+ 'check_point_epoch_%d.pth' % (epoch))
