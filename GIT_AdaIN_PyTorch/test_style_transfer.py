@@ -33,35 +33,39 @@ parser.add_argument('--cuda', action='store_true', help='Using GPU to train')# U
 
 if __name__ == '__main__':
     # Recupere et stocke les arguments donnés
-	opt =parser.parse_args()
-	input_image = Image.open(opt.input_image)
-	style_image = Image.open(opt.style_image)
-	output_format = opt.input_image[opt.input_image.find('.'):]# Le format de l'image de sortie et le même que celui de l'image de contenu
+    opt =parser.parse_args()
+    input_image = Image.open(opt.input_image)
+    style_image = Image.open(opt.style_image)
+    size = np.shape(style_image)
+    if (len(size) == 2) :
+        style_image = style_image.convert('RGB')
+            
+    output_format = opt.input_image[opt.input_image.find('.'):]# Le format de l'image de sortie et le même que celui de l'image de contenu
     # Cree le repertoire de sortie
-	out_dir = './results/'
-	os.makedirs(out_dir, exist_ok=True)
-	with torch.no_grad():
-		vgg_model = torch.load('vgg_normalized.pth')# Load le modele
-
-		net = StyleTransferNet(vgg_model)
-		net.decoder.load_state_dict(torch.load(opt.weight))# Load les poids
-
-		net.eval()
+    out_dir = './results/'
+    os.makedirs(out_dir, exist_ok=True)
+    with torch.no_grad():
+        vgg_model = torch.load('vgg_normalized.pth')# Load le modele
+        
+        net = StyleTransferNet(vgg_model)
+        net.decoder.load_state_dict(torch.load(opt.weight))# Load les poids
+        
+        net.eval()
         # Reshape les deux images d'entree à la même taille
-		input_image = transforms.Resize(512)(input_image)
-		style_image = transforms.Resize(512)(style_image)
-		# Transform les images en tenseurs
-		input_tensor = transforms.ToTensor()(input_image).unsqueeze(0)
-		style_tensor = transforms.ToTensor()(style_image).unsqueeze(0)
-	
-
-		if torch.cuda.is_available() and opt.cuda:
-			net.cuda()# ?
-			input_tensor = input_tensor.cuda()# ?
-			style_tensor = style_tensor.cuda()# ?
-		out_tensor = net([input_tensor, style_tensor], alpha = opt.alpha)# Applique le modele aux images choisies
-
-
-		save_image(out_tensor, out_dir + opt.input_image[opt.input_image.rfind('/')+1: opt.input_image.find('.')]
+        input_image = transforms.Resize(512)(input_image)
+        style_image = transforms.Resize(512)(style_image)
+        # Transform les images en tenseurs
+        input_tensor = transforms.ToTensor()(input_image).unsqueeze(0)
+        style_tensor = transforms.ToTensor()(style_image).unsqueeze(0)
+        
+        
+        if torch.cuda.is_available() and opt.cuda:
+            net.cuda()# ?
+            input_tensor = input_tensor.cuda()# ?
+            style_tensor = style_tensor.cuda()# ?
+            
+        out_tensor = net([input_tensor, style_tensor], alpha = opt.alpha)# Applique le modele aux images choisies
+        
+        save_image(out_tensor, out_dir + opt.input_image[opt.input_image.rfind('/')+1: opt.input_image.find('.')]
 								+"_style_"+ opt.style_image[opt.style_image.rfind('/')+1: opt.style_image.find('.')]
 								+ output_format)# Sauvegarde de l'image de sortie
