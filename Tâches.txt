@@ -1,7 +1,6 @@
 Communes :
-- Lancer un jupiter notebook en python (A FAIRE)
-- Comprendre et commenter le code (A FAIRE)
-- Tester le code chacunes sur quelques images
+- Lancer un jupyter notebook en python (A FAIRE)
+- Tester le code chacunes sur quelques images 
 - Comprendre le fonctionnement de la loss
 - Discussion des limites
 
@@ -10,3 +9,9 @@ Individuelles :
 
 
 - Tests des limites
+
+Réu du 20/11 :
+- Intro + Background knowledge (Parties 1 et 2 de l'article) -> EMA
+- Batch normalisation & Instance normalisation -> AIJANA
+- Conditional instance normalisation & Interpreting Instance Normalization -> CHA
+- Adaptive Instance Normalization & Architecture -> FATINE
